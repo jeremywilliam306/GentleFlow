@@ -10,21 +10,15 @@ import {
   Platform,
 } from "react-native";
 
-type Todo = {
-  id: string;
-  title: string;
-  done: boolean;
-};
-
-const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+export default function App() {
+  const [todos, setTodos] = useState([]);
   const [text, setText] = useState("");
 
   const addTodo = () => {
     const trimmed = text.trim();
     if (!trimmed) return;
 
-    const newTodo: Todo = {
+    const newTodo = {
       id: Date.now().toString(),
       title: trimmed,
       done: false,
@@ -34,7 +28,7 @@ const App: React.FC = () => {
     setText("");
   };
 
-  const toggleTodo = (id: string) => {
+  const toggleTodo = (id) => {
     setTodos((prev) =>
       prev.map((todo) =>
         todo.id === id ? { ...todo, done: !todo.done } : todo
@@ -42,13 +36,16 @@ const App: React.FC = () => {
     );
   };
 
-  const deleteTodo = (id: string) => {
+  const deleteTodo = (id) => {
     setTodos((prev) => prev.filter((todo) => todo.id !== id));
   };
 
-  const renderItem = ({ item }: { item: Todo }) => (
+  const renderItem = ({ item }) => (
     <View style={styles.todoRow}>
-      <TouchableOpacity onPress={() => toggleTodo(item.id)} style={styles.todoTextWrapper}>
+      <TouchableOpacity
+        onPress={() => toggleTodo(item.id)}
+        style={styles.todoTextWrapper}
+      >
         <Text style={[styles.todoText, item.done && styles.todoTextDone]}>
           {item.title}
         </Text>
@@ -96,9 +93,7 @@ const App: React.FC = () => {
       </View>
     </KeyboardAvoidingView>
   );
-};
-
-export default App;
+}
 
 const styles = StyleSheet.create({
   container: {
