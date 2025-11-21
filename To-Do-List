@@ -1,0 +1,181 @@
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+
+type Todo = {
+  id: string;
+  title: string;
+  done: boolean;
+};
+
+const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [text, setText] = useState("");
+
+  const addTodo = () => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+
+    const newTodo: Todo = {
+      id: Date.now().toString(),
+      title: trimmed,
+      done: false,
+    };
+
+    setTodos((prev) => [newTodo, ...prev]);
+    setText("");
+  };
+
+  const toggleTodo = (id: string) => {
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, done: !todo.done } : todo
+      )
+    );
+  };
+
+  const deleteTodo = (id: string) => {
+    setTodos((prev) => prev.filter((todo) => todo.id !== id));
+  };
+
+  const renderItem = ({ item }: { item: Todo }) => (
+    <View style={styles.todoRow}>
+      <TouchableOpacity onPress={() => toggleTodo(item.id)} style={styles.todoTextWrapper}>
+        <Text style={[styles.todoText, item.done && styles.todoTextDone]}>
+          {item.title}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => deleteTodo(item.id)}>
+        <Text style={styles.deleteText}>✕</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.select({ ios: "padding", android: undefined })}
+    >
+      <View style={styles.inner}>
+        <Text style={styles.title}>My To-Do List</Text>
+
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.input}
+            placeholder="Add a new task..."
+            value={text}
+            onChangeText={setText}
+            onSubmitEditing={addTodo}
+            returnKeyType="done"
+          />
+          <TouchableOpacity style={styles.addButton} onPress={addTodo}>
+            <Text style={styles.addButtonText}>+</Text>
+          </TouchableOpacity>
+        </View>
+
+        <FlatList
+          data={todos}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No tasks yet. Add one! ✨</Text>
+          }
+          contentContainerStyle={
+            todos.length === 0 ? styles.emptyContainer : undefined
+          }
+        />
+      </View>
+    </KeyboardAvoidingView>
+  );
+};
+
+export default App;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#0f172a",
+  },
+  inner: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 60,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "white",
+    marginBottom: 20,
+  },
+  inputRow: {
+    flexDirection: "row",
+    marginBottom: 16,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: "#1f2937",
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    color: "white",
+    fontSize: 16,
+  },
+  addButton: {
+    marginLeft: 8,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#22c55e",
+  },
+  addButtonText: {
+    fontSize: 24,
+    color: "white",
+    fontWeight: "700",
+    marginTop: -2,
+  },
+  todoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#111827",
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 8,
+  },
+  todoTextWrapper: {
+    flex: 1,
+  },
+  todoText: {
+    fontSize: 16,
+    color: "white",
+  },
+  todoTextDone: {
+    textDecorationLine: "line-through",
+    color: "#9ca3af",
+  },
+  deleteText: {
+    marginLeft: 10,
+    fontSize: 18,
+    color: "#f97373",
+  },
+  emptyContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "#9ca3af",
+    fontSize: 16,
+  },
+});
